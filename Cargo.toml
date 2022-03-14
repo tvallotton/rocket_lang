@@ -5,6 +5,8 @@ edition = "2021"
 authors = ["tvallotton@uc.cl"]
 license = "Apache-2.0"
 repository = "https://github.com/tvallotton/rocket_lang"
+description = "rocket_lang provides a configurable enum type for multi-language rocket applications."
+keywords = ["rocket", "web", "language", "multi-language"]
 
 [dependencies]
 fehler = "1.0.0"
