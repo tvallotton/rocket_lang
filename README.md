@@ -1,6 +1,6 @@
 # Rocket Lang
 ### [This is still unstable, don't use still]
-Rocket lang provides a configurable enum type for multi-language rocket applications. 
+Rocket-lang provides a configurable enum type for multi-language rocket applications. 
 
 # LangCode
 A request guard corresponding to the [ISO 639-1](https://es.wikipedia.org/wiki/ISO_639-1) code standard. 

@@ -1,7 +1,4 @@
-
-
-
-use rocket::http::Header;
+use rocket::http::{Header, Status};
 use rocket::local::asynchronous::Client;
 
 use LangCode::Es;
@@ -30,6 +27,10 @@ async fn test_config(url: &str, lang: &str, config: Config) {
 fn index(lang: LangCode) -> &'static str {
     lang.as_str()
 }
+#[get("/fail")]
+fn fails(lang: LangCode) -> &'static str {
+    lang.as_str()
+}
 
 #[tokio::test]
 async fn url_minus_one() {
@@ -50,6 +51,23 @@ async fn positive_url() {
 
     let config = Config::new().url(1);
     test_config("/some/pt/path", "pt", config).await;
+}
+#[tokio::test]
+async fn url_failure() {
+    let config = Config::new().url(0);
+
+    let rocket = rocket::build()
+        .mount("/", routes![index, fails])
+        .attach(config);
+
+    let status = Client::tracked(rocket)
+        .await
+        .unwrap()
+        .get("/fail")
+        .dispatch()
+        .await
+        .status();
+    assert!(status == Status::NotFound);
 }
 
 #[tokio::test]
@@ -121,4 +139,19 @@ async fn accept_header1() {
         .await
         .unwrap();
     assert_eq!(res, "de");
+
+    let mut req = client.get("/some/path/index.html");
+    req.add_header(Header::new("accept-language", "not a valid header"));
+    let status = req.dispatch().await.status();
+    assert!(status == Status::NotAcceptable);
+}
+#[tokio::test]
+async fn accept_header_without_config() {
+    let rocket = rocket::build().mount("/", routes![index]);
+
+    let client = Client::tracked(rocket)
+        .await
+        .unwrap();
+    let mut req = client.get("/some/path/index.html");
+    req.add_header(Header::new("accept-language", "de, es;q=0.4"));
 }
