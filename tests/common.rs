@@ -26,7 +26,7 @@ pub async fn configured(config: Config) -> Client {
         .unwrap()
 }
 pub async fn not_configured() -> Client {
-    let rocket = rocket::build().mount("/", routes![index, fails]);
+    let rocket = rocket::build().mount("/", routes![index, fails, nothing]);
     Client::tracked(rocket)
         .await
         .unwrap()
