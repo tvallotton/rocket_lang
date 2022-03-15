@@ -1,27 +1,12 @@
 use rocket::http::{Header, Status};
 use rocket::local::asynchronous::Client;
+use rocket::{Build, Rocket};
 
 use LangCode::Es;
 #[macro_use]
 extern crate rocket;
 
 use rocket_lang::{Config, Error, LangCode};
-
-async fn test_config(url: &str, lang: &str, config: Config) {
-    let rocket = rocket::build()
-        .mount("/", routes![index])
-        .attach(config);
-    let body = Client::tracked(rocket)
-        .await
-        .unwrap()
-        .get(url)
-        .dispatch()
-        .await
-        .into_string()
-        .await
-        .unwrap();
-    assert!(body == lang);
-}
 
 #[get("/<_>/<_>/<_>")]
 fn index(lang: LangCode) -> &'static str {
@@ -32,43 +17,70 @@ fn fails(lang: LangCode) -> &'static str {
     lang.as_str()
 }
 
-#[tokio::test]
-async fn url_minus_one() {
-    let config = Config::new().url(-1);
-    test_config("/index/path/es", "es", config).await;
-}
-
-#[tokio::test]
-async fn negative_url() {
-    let config = Config::new().url(-2);
-    test_config("/index/fr/segment", "fr", config).await;
-}
-
-#[tokio::test]
-async fn positive_url() {
-    let config = Config::new().url(0);
-    test_config("/de/some/path", "de", config).await;
-
-    let config = Config::new().url(1);
-    test_config("/some/pt/path", "pt", config).await;
-}
-#[tokio::test]
-async fn url_failure() {
-    let config = Config::new().url(0);
-
+async fn configured(config: Config) -> Client {
     let rocket = rocket::build()
         .mount("/", routes![index, fails])
         .attach(config);
-
-    let status = Client::tracked(rocket)
+    Client::tracked(rocket)
         .await
         .unwrap()
-        .get("/fail")
+}
+async fn not_configured() -> Client {
+    let rocket = rocket::build().mount("/", routes![index, fails]);
+
+    Client::tracked(rocket)
+        .await
+        .unwrap()
+}
+async fn test_config(url: &str, lang: &str, config: Config) {
+    let body = configured(config)
+        .await
+        .get(url)
         .dispatch()
         .await
-        .status();
-    assert!(status == Status::NotFound);
+        .into_string()
+        .await
+        .unwrap();
+    assert!(body == lang);
 }
+
+// #[tokio::test]
+// async fn url_minus_one() {
+//     let config = Config::new().url(-1);
+//     test_config("/index/path/es", "es", config).await;
+// }
+
+// #[tokio::test]
+// async fn negative_url() {
+//     let config = Config::new().url(-2);
+//     test_config("/index/fr/segment", "fr", config).await;
+// }
+
+// #[tokio::test]
+// async fn positive_url() {
+//     let config = Config::new().url(0);
+//     test_config("/de/some/path", "de", config).await;
+
+//     let config = Config::new().url(1);
+//     test_config("/some/pt/path", "pt", config).await;
+// }
+// #[tokio::test]
+// async fn url_failure() {
+//     let config = Config::new().url(0);
+
+//     let rocket = rocket::build()
+//         .mount("/", routes![index, fails])
+//         .attach(config);
+
+//     let status = Client::tracked(rocket)
+//         .await
+//         .unwrap()
+//         .get("/fail")
+//         .dispatch()
+//         .await
+//         .status();
+//     assert!(status == Status::NotFound);
+// }
 
 #[tokio::test]
 async fn wildcard() {
@@ -90,7 +102,7 @@ async fn test_failed_custom() {
 }
 
 #[tokio::test]
-async fn accept_header1() {
+async fn _accept_header1() {
     let mut config = Config::new();
     config[LangCode::En] = 0.5;
     config[LangCode::De] = 0.5;

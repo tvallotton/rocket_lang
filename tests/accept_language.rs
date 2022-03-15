@@ -30,6 +30,7 @@ async fn assert_not_acceptable(client: &Client, header: &'static str) {
     );
 }
 
+
 #[tokio::test]
 async fn accept_language_configured() {
     let mut config = Config::new();

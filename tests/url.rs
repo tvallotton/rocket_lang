@@ -1,6 +1,7 @@
 mod common;
 use common::*;
 use rocket::http::Status;
+use rocket_lang::LangCode;
 async fn test_config(url: &str, lang: &str, config: Config) {
     let body = configured(config)
         .await
@@ -11,6 +12,12 @@ async fn test_config(url: &str, lang: &str, config: Config) {
         .await
         .unwrap();
     assert_eq!(body, lang);
+}
+
+#[tokio::test]
+async fn wildcard() {
+    let config = Config::new().wildcard(LangCode::Es);
+    test_config("/some/other/path", "es", config).await;
 }
 #[tokio::test]
 async fn url_minus_one() {

@@ -33,6 +33,7 @@ macro_rules! language_impls {
             /// A collection with all the values to
             /// iterate through them easily.
             pub const ALL_CODES: &'static [Self] = &[$(Self::$upper,)*];
+            
             /// transforms the enum value to its lower case string representation.
             /// ```rust
             /// let spanish = Es.as_str();
