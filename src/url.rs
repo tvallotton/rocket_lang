@@ -1,4 +1,6 @@
 #![warn(dead_code)]
+use std::ops::Sub;
+
 use crate::error::Error;
 use rocket::Request;
 
@@ -18,14 +20,17 @@ fn parse_negative(req: &Request, pos: i32) -> Option<LangCode> {
     if pos == -1 {
         return minus_one_optimization(req);
     }
+    let total = req
+        .uri()
+        .path()
+        .segments()
+        .count();
+
     req.uri()
         .path()
         .segments()
-        .collect::<Vec<_>>()
-        .into_iter()
-        .rev()
-        .skip((-1 - pos) as usize)
-        .next()?
+        .nth(total.checked_sub(pos.abs() as usize)?)
+        .unwrap() // we can unwrap this because the checked subtraction
         .parse()
         .ok()
 }
