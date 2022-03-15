@@ -1,5 +1,4 @@
 #![warn(dead_code)]
-use std::ops::Sub;
 
 use crate::error::Error;
 use rocket::Request;
