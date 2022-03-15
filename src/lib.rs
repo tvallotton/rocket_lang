@@ -115,11 +115,7 @@ impl<'r> FromRequest<'r> for LangCode {
     }
 }
 
-#[test]
-fn foo() {
-    let x = 1.0 / 0.0;
-    println!("{}", x);
-}
+
 
 language_impls! {
 Aa | aa  | "Afar"                | "Afaraf"

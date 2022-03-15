@@ -14,7 +14,6 @@ fn accept_language<'a>(req: &'a Request<'_>) -> &'a str {
         .unwrap_or("en")
 }
 
-
 fn lang_from_capture(capt: &Captures) -> Option<LangCode> {
     capt.iter()
         .flatten()
@@ -111,22 +110,4 @@ pub(crate) fn with_config(req: &Request, config: &Config) -> Result<LangCode, Er
         decider.add_preference(lang, q);
     }
     decider.result()
-}
-
-#[test]
-fn test_lang_parsing() -> Result<(), Error> {
-    assert_eq!(Da, without_config_from_header("da, en-GB;q=0.8, en;q=0.7")?);
-    assert_eq!(
-        En,
-        without_config_from_header("en-US,en;q=0.8,es;q=0.5,es-ES;q=0.3")?
-    );
-    assert_eq!(En, without_config_from_header("en-US,en;q=0.9")?);
-    assert!(if let Err::<LangCode, _>(Error::BadRequest) =
-        without_config_from_header("invalid accept language header")
-    {
-        true
-    } else {
-        false
-    });
-    Ok(())
 }
