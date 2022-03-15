@@ -13,7 +13,7 @@ use std::{
 // type alias for reduced verbosity
 type CloneFn = Arc<dyn Fn(&Request) -> Result<LangCode, Error> + 'static + Send + Sync>;
 
-/// This struct allows for customization of `LangCode`'s 
+/// This struct allows for customization of `LangCode`'s
 /// behavior.
 /// The precedence for every configuration is:
 ///   1. custom closure
@@ -114,8 +114,8 @@ impl Config {
         }
     }
     /// The errors with be grater preference should be
-    #[throws(Error)]
-    pub(crate) fn choose(&self, req: &Request<'_>) -> LangCode {
+
+    pub(crate) fn choose(&self, req: &Request<'_>) -> Result<LangCode, Error> {
         self.from_custom(req)
             .or_else(|e1| {
                 self.from_url(req)
@@ -131,7 +131,7 @@ impl Config {
                 }
                 Err(err)
             })
-            .map_err(Option::unwrap)?
+            .map_err(Option::unwrap)
     }
 
     fn from_custom(&self, req: &Request) -> Result<LangCode, Option<Error>> {

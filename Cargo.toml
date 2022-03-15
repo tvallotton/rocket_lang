@@ -9,7 +9,6 @@ description = "rocket_lang provides a configurable enum type for multi-language 
 keywords = ["rocket", "web", "language", "multi-language"]
 
 [dependencies]
-fehler = "1.0.0"
 once_cell = "1.9.0"
 regex = "1.5.4"
 rocket = "0.5.0-rc.1"

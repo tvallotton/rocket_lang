@@ -14,14 +14,14 @@ fn accept_language<'a>(req: &'a Request<'_>) -> &'a str {
         .unwrap_or("en")
 }
 
-#[throws(as Option)]
-fn lang_from_capture(capt: &Captures) -> LangCode {
+
+fn lang_from_capture(capt: &Captures) -> Option<LangCode> {
     capt.iter()
         .flatten()
         .map(|m| m.as_str())
         .map(|m| m.parse())
         .map(|m| m.ok())
-        .nth(1)??
+        .nth(1)?
 }
 fn quality_from_capture(capt: &Captures) -> f32 {
     capt.iter()
@@ -34,11 +34,11 @@ fn quality_from_capture(capt: &Captures) -> f32 {
         .flatten()
         .unwrap_or(1.0)
 }
-#[throws(as Option)]
-fn from_regex_capture(cap: Captures) -> (LangCode, f32) {
+
+fn from_regex_capture(cap: Captures) -> Option<(LangCode, f32)> {
     let lang = lang_from_capture(&cap)?;
     let q = quality_from_capture(&cap);
-    (lang, q)
+    Some((lang, q))
 }
 
 pub(crate) fn languages(text: &'_ str) -> impl Iterator<Item = (LangCode, f32)> + '_ {
@@ -46,18 +46,17 @@ pub(crate) fn languages(text: &'_ str) -> impl Iterator<Item = (LangCode, f32)> 
         .captures_iter(text)
         .flat_map(from_regex_capture)
 }
-#[throws(Error)]
-fn without_config_from_header(header: &str) -> LangCode {
+
+fn without_config_from_header(header: &str) -> Result<LangCode, Error> {
     languages(header)
         .max_by(|x, y| x.1.partial_cmp(&y.1).unwrap())
-        .ok_or(Error::BadRequest)?
-        .0
+        .ok_or(Error::BadRequest)
+        .map(|x| x.0)
 }
 
-#[throws(Error)]
-pub(crate) fn without_config(req: &Request<'_>) -> LangCode {
+pub(crate) fn without_config(req: &Request<'_>) -> Result<LangCode, Error> {
     let header = accept_language(req);
-    without_config_from_header(header)?
+    without_config_from_header(header)
 }
 
 struct Decider<'a> {

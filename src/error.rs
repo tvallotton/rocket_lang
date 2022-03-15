@@ -1,5 +1,4 @@
 use rocket::{http::Status, response::Responder, Request};
-
 use crate::LangCode;
 
 /// This error implements `Responder`
@@ -33,7 +32,8 @@ pub enum Error {
 }
 
 impl Error {
-    pub(crate) fn status(&self) -> Status {
+    /// returns the http status for the error. 
+    pub fn status(&self) -> Status {
         match self {
             Self::NotAcceptable => Status::NotAcceptable,
             Self::BadRequest => Status::BadRequest,
