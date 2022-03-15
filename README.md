@@ -3,7 +3,7 @@
 Rocket-lang provides a configurable enum type for multi-language rocket applications. 
 
 # LangCode
-A request guard corresponding to the [ISO 639-1](https://es.wikipedia.org/wiki/ISO_639-1) code standard. 
+A request guard corresponding to the [ISO 639-1](https://en.wikipedia.org/wiki/ISO_639-1) code standard. 
 Usage example: 
 ```rust
 #[get("/some-path/")]
