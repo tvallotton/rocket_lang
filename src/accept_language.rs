@@ -5,7 +5,7 @@ use rocket::Request;
 use std::cmp::PartialOrd;
 
 static PATTERN: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(\w{1,3})(?:-\w{1,3})?(?:;q=([\d\.]+))?").unwrap());
+    Lazy::new(|| Regex::new(r"(?:^|,| )(\w{1,3})(?:-\w{1,3})? ?(?:;q=([\d\.]+))?").unwrap());
 
 fn accept_language<'a>(req: &'a Request<'_>) -> &'a str {
     req.headers()
@@ -49,7 +49,7 @@ pub(crate) fn languages(text: &'_ str) -> impl Iterator<Item = (LangCode, f32)> 
 fn without_config_from_header(header: &str) -> Result<LangCode, Error> {
     languages(header)
         .max_by(|x, y| x.1.partial_cmp(&y.1).unwrap())
-        .ok_or(Error::BadRequest)
+        .ok_or(Error::NotAcceptable)
         .map(|x| x.0)
 }
 

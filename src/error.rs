@@ -6,12 +6,6 @@ use rocket::{http::Status, response::Responder, Request, Response};
 #[derive(Debug, Error, Clone)]
 #[non_exhaustive]
 pub enum Error {
-    /// Used to respond with 400 Bad Request.
-    /// This is thrown when the `Accept-Language` header
-    /// could not be parsed correctly.
-    #[error("400 Bad Request.")]
-    BadRequest,
-
     /// Returns a `406 Not Acceptable` response.
     /// This error is thrown when none of the languages requested
     /// are supported.
@@ -34,7 +28,6 @@ impl Error {
     pub fn status(&self) -> Status {
         match self {
             Self::NotAcceptable => Status::NotAcceptable,
-            Self::BadRequest => Status::BadRequest,
             Self::NotFound => Status::NotFound,
             // Self::NotConfigured => Status::InternalServerError,
         }
