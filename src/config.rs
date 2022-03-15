@@ -99,6 +99,7 @@ impl Config {
         self.url = Some(position);
         self
     }
+
     /// Constructs a new configuration object.
     pub fn new() -> Self {
         Self::default()

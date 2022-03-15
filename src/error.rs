@@ -1,5 +1,4 @@
-use rocket::{http::Status, response::Responder, Request};
-use crate::LangCode;
+use rocket::{http::Status, response::Responder, Request, Response};
 
 /// This error implements `Responder`
 /// so not all errors need to be handled
@@ -24,7 +23,6 @@ pub enum Error {
     // /// with a 500 error status.
     // #[error("language settings not configured. Attach a `rocket_lang::Config` to the server to resolve this error.")]
     // NotConfigured,
-
     /// Used to respond with a 404 NotFound. This is used when dealing with
     /// unsupported language codes in the url.
     #[error("404 not found.")]
@@ -32,7 +30,7 @@ pub enum Error {
 }
 
 impl Error {
-    /// returns the http status for the error. 
+    /// returns the http status for the error.
     pub fn status(&self) -> Status {
         match self {
             Self::NotAcceptable => Status::NotAcceptable,
@@ -45,14 +43,8 @@ impl Error {
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
     fn respond_to(self, request: &'r Request<'_>) -> rocket::response::Result<'o> {
-        let lang: LangCode = request
-            .try_into()
-            .map_err(|x: Error| x.status())?;
-        let msg = match lang {
-            LangCode::En => "Unauthorized",
-            LangCode::Es => "No autorizado",
-            _ => panic!(),
-        }; 
-        msg.respond_to(request)
+        Response::new()
+            .set_status(self.status())
+            .respond_to(request)
     }
 }
