@@ -1,4 +1,4 @@
-use rocket::{http::Status, response::Responder, Request, Response};
+use rocket::http::Status;
 
 /// This error implements `Responder`
 /// so not all errors need to be handled

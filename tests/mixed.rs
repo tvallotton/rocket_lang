@@ -1,9 +1,6 @@
 mod common;
 use common::*;
-use rocket::{
-    http::{Header, Status},
-    local::asynchronous::LocalResponse,
-};
+use rocket::http::{Header, Status};
 
 async fn get_mixed(config: Config, path: &str, header: &'static str) -> (String, Status) {
     let client = configured(config).await;
@@ -75,7 +72,7 @@ async fn mixed_custom_url() {
     assert_mixed(config.clone(), "/some/bad/path", "es", "es").await;
     assert_mixed(config.clone(), "/some-good/path/pt", "es", "pt").await;
 
-    let mut config = Config::new().custom(|_| Ok(La));
+    let config = Config::new().custom(|_| Ok(La));
 
     assert_mixed(config.clone(), "/some/bad/path", "en", "la").await;
     assert_mixed(config.clone(), "/some/bad/path", "en", "la").await;

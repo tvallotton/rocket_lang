@@ -1,6 +1,5 @@
 use rocket::http::{Header, Status};
 use rocket::local::asynchronous::Client;
-use rocket::{Build, Rocket};
 
 use LangCode::Es;
 #[macro_use]
@@ -25,7 +24,7 @@ async fn configured(config: Config) -> Client {
         .await
         .unwrap()
 }
-async fn not_configured() -> Client {
+async fn _not_configured() -> Client {
     let rocket = rocket::build().mount("/", routes![index, fails]);
 
     Client::tracked(rocket)
