@@ -1,6 +1,7 @@
 use rocket::local::asynchronous::Client;
 use rocket::{get, routes};
 pub use rocket_lang::Config;
+pub use rocket_lang::*; 
 use rocket_lang::*;
 #[get("/<_>/<_>/<_>")]
 fn index(lang: LangCode) -> &'static str {

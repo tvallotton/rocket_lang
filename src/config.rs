@@ -114,7 +114,6 @@ impl Config {
             ..self
         }
     }
-    /// The errors with be grater preference should be
 
     pub(crate) fn choose(&self, req: &Request<'_>) -> Result<LangCode, Error> {
         self.from_custom(req)

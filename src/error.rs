@@ -12,8 +12,6 @@ pub enum Error {
     #[error("unsupported language.")]
     NotAcceptable,
 
-    // #[error("language settings not configured. Attach a `rocket_lang::Config` to the server to resolve this error.")]
-    // NotConfigured,
     /// Used to respond with a 404 NotFound. This is used when dealing with
     /// unsupported language codes in the url.
     #[error("404 not found.")]
@@ -30,10 +28,10 @@ impl Error {
     }
 }
 
-impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
-    fn respond_to(self, request: &'r Request<'_>) -> rocket::response::Result<'o> {
-        Response::new()
-            .set_status(self.status())
-            .respond_to(request)
-    }
-}
+// impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
+//     fn respond_to(self, request: &'r Request<'_>) -> rocket::response::Result<'o> {
+//         Response::new()
+//             .set_status(self.status())
+//             .respond_to(request)
+//     }
+// }

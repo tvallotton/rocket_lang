@@ -27,7 +27,7 @@ let config[Es] = 1.0;
 let config[En] = 0.5;
 ```
 
-# url
+## url
 The guard can also be configured to extract the language code from a fixed position in the path: 
 ```rust
 /// takes the language code from the last path segment:
@@ -35,12 +35,28 @@ let config = Config::new().url(-1);
 ```
 
 This way the language code can be retrieved from a positional url segment. 
-This also allows other request guards to consume the structure in their API. Most notably, it can be used by foreign structures to return error messages in multiple languages.
 ```rust
 #[get("see-lang/<_>")]
 fn see_lang(lang: LangCode) -> &'static str {
     lang.as_str()
 }
+
+```
+## custom
+If none of the previous approaches suit your needs, you may also use a closure to create a language code from a request: 
+```rust
+let config = Config::custom(|req: &Request|{
+    let lang = from_url(req)?;
+    Ok(lang) 
+}); 
+```
+
+
+
+# Composable
+Other request guards can consume the structure in their API. Most notably, it can be used by foreign structures to return error messages in multiple languages.
+
+```rust
 
 // here the error message displayed by 
 // `Error` will automatically suit the callers configuration. 
@@ -64,15 +80,3 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
     }
 }
 ```
-# custom
-If none of the previous approaches suit your needs, you may also use a closure to create a language code from a request: 
-```rust
-let config = Config::custom(|req: &Request|{
-    let lang = from_url(req)?;
-    Ok(lang) 
-}); 
-```
-
-
-
-
