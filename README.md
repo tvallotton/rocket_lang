@@ -74,7 +74,7 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for Unauthorized {
         let msg = match lang {
             LangCode::Es => "No autorizado",
             LangCode::Fr => "Non autorisé",
-            LangCode::Ge => "Nicht autorisiert"
+            LangCode::Ge => "Nicht autorisiert",
             _            => "Unauthorized",  
         };
         msg.respond_to(request)
