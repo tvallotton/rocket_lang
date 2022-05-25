@@ -72,9 +72,10 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for Unauthorized {
             .try_into()
             .map_err(|x: Error| x.status())?;
         let msg = match lang {
-            LangCode::En => "Unauthorized",
             LangCode::Es => "No autorizado",
-            ...
+            LangCode::Fr => "Non autorisé",
+            LangCode::Ge => "Nicht autorisiert"
+            _            => "Unauthorized",  
         };
         msg.respond_to(request)
     }
