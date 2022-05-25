@@ -59,13 +59,13 @@ Other request guards can consume the structure in their API. Most notably, it ca
 use rocket_lang::Error; 
 
 // here the error message displayed by
-// `Error` will automatically suit the callers configuration.
+// `Unauthorized` will automatically suit the callers configuration.
 #[get("/unauthorized")]
 fn unauthorized() -> Unauthorized {
     Unauthorized
 }
 
-// A possible implementation of `Error`
+// A possible implementation of `Unauthorized`
 impl<'r, 'o: 'r> Responder<'r, 'o> for Unauthorized {
     fn respond_to(self, request: &'r Request<'_>) -> rocket::response::Result<'o> {
         let lang: LangCode = request
