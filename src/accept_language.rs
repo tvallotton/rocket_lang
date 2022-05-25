@@ -102,7 +102,7 @@ impl<'a> Decider<'a> {
     }
 }
 
-// #[throws(Error)]
+
 pub(crate) fn with_config(req: &Request, config: &Config) -> Result<LangCode, Error> {
     let header = accept_language(req);
     let mut decider = Decider::new(config);

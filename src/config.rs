@@ -194,16 +194,6 @@ impl Fairing for Config {
         }
     }
 }
-// async fn on_request(req: &mut Request<'_>, _data: &mut Data<'_>) {
-//     match req.guard::<&State<PrivConfig>>().await {
-//         Outcome::Success(config) => config.0.choose(req)?,
-//         _ => crate::accept_language::without_config(req)?,
-//     }
-
-//     if let Outcome::Success(code) = req.guard::<LangCode>().await {
-//         req.local_cache(|| code);
-//     }
-// }
 
 impl Index<LangCode> for Config {
     type Output = f32;
@@ -219,21 +209,3 @@ impl IndexMut<LangCode> for Config {
             .unwrap()
     }
 }
-
-// fn parse_with_config(
-//     text: &str,
-//     map: &impl Index<LangCode, Output = f32>,
-// ) -> Result<Option<LangCode>, Error> {
-//     if text == "*" {
-//         return Ok(None);
-//     }
-
-//     for cap in PATTERN.captures(text) {
-//         if let Some((lang, q)) = from_regex_capture(cap, map) {
-//             if q <= map[lang] {
-//                 return Some(lang);
-//             }
-//         }
-//     }
-//     Err(Error::AcceptLanguageParse)
-// }
