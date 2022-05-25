@@ -57,16 +57,17 @@ let config = Config::custom(|req: &Request|{
 Other request guards can consume the structure in their API. Most notably, it can be used by foreign structures to return error messages in multiple languages.
 
 ```rust
+use rocket_lang::Error; 
 
-// here the error message displayed by 
-// `Error` will automatically suit the callers configuration. 
-#[get("custom-error-message/")]
-fn custom_error_message(user: User) -> Error {
-    Error::Unauthorized
+// here the error message displayed by
+// `Error` will automatically suit the callers configuration.
+#[get("/unauthorized")]
+fn unauthorized() -> Unauthorized {
+    Unauthorized
 }
 
 // A possible implementation of `Error`
-impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
+impl<'r, 'o: 'r> Responder<'r, 'o> for Unauthorized {
     fn respond_to(self, request: &'r Request<'_>) -> rocket::response::Result<'o> {
         let lang: LangCode = request
             .try_into()
@@ -75,7 +76,7 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
             LangCode::En => "Unauthorized",
             LangCode::Es => "No autorizado",
             ...
-        }; 
+        };
         msg.respond_to(request)
     }
 }

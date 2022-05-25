@@ -1,4 +1,8 @@
-use rocket::http::Status;
+use rocket::{
+    http::Status,
+    request::Request,
+    response::{Responder, Response},
+};
 
 /// This error implements `Responder`
 /// so not all errors need to be handled
@@ -28,10 +32,10 @@ impl Error {
     }
 }
 
-// impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
-//     fn respond_to(self, request: &'r Request<'_>) -> rocket::response::Result<'o> {
-//         Response::new()
-//             .set_status(self.status())
-//             .respond_to(request)
-//     }
-// }
+impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
+    fn respond_to(self, request: &'r Request<'_>) -> rocket::response::Result<'o> {
+        Response::new()
+            .set_status(self.status())
+            .respond_to(request)
+    }
+}
