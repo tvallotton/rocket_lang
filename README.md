@@ -1,5 +1,4 @@
 # Rocket Lang
-### [This is still unstable, don't use still]
 Rocket-lang provides a configurable enum type for multi-language rocket applications. 
 
 # LangCode
