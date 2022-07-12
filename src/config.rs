@@ -7,11 +7,12 @@ use rocket::{
 use std::{
     collections::HashMap,
     ops::{Index, IndexMut},
-    sync::Arc,
 };
+use std::{future::Future, pin::Pin};
 
-// type alias for reduced verbosity
-type CloneFn = Arc<dyn Fn(&Request) -> Result<LangCode, Error> + 'static + Send + Sync>;
+// type aliases for reduced verbosity
+type Fn = fn(&Request) -> Result<LangCode, Error>;
+type AsyncFn = fn(&Request) -> Pin<Box<dyn Future<Output = Result<LangCode, Error>> + Send>>;
 
 /// This struct allows for customization of `LangCode`'s
 /// behavior.
@@ -80,7 +81,7 @@ pub struct Config {
     pub wildcard: Option<LangCode>,
     pub(crate) accept_language: HashMap<LangCode, f32>,
     pub(crate) url: Option<i32>,
-    pub(crate) custom: Option<CloneFn>,
+    pub(crate) custom: Option<Result<Fn, AsyncFn>>,
 }
 
 impl Config {
@@ -105,18 +106,23 @@ impl Config {
         Self::default()
     }
     /// Used to specify a custom language resolution method.
-    pub fn custom<F>(self, f: F) -> Self
-    where
-        F: Fn(&Request) -> Result<LangCode, Error> + 'static + Send + Sync,
-    {
+    pub fn custom(self, f: Fn) -> Self {
         Self {
-            custom: Some(Arc::new(f)),
+            custom: Some(Ok(f)),
+            ..self
+        }
+    }
+    /// Used to specify a custom language resolution method with async block.
+    pub fn custom_async(self, f: AsyncFn) -> Self {
+        Self {
+            custom: Some(Err(f)),
             ..self
         }
     }
 
-    pub(crate) fn choose(&self, req: &Request<'_>) -> Result<LangCode, Error> {
+    pub(crate) async fn choose(&self, req: &Request<'_>) -> Result<LangCode, Error> {
         self.from_custom(req)
+            .await
             .or_else(|e1| {
                 self.from_url(req)
                     .map_err(|e2| e1.or(e2))
@@ -134,11 +140,18 @@ impl Config {
             .map_err(Option::unwrap)
     }
 
-    fn from_custom(&self, req: &Request) -> Result<LangCode, Option<Error>> {
-        if let Some(custom) = self.custom.as_ref() {
-            return custom(req).map_err(Some);
+    async fn from_custom(&self, req: &Request<'_>) -> Result<LangCode, Option<Error>> {
+        match self.custom.as_ref() {
+            Some(Ok(custom)) => {
+                return custom(req).map_err(Some);
+            }
+            Some(Err(custom)) => {
+                return custom(req)
+                    .await
+                    .map_err(Some);
+            }
+            None => Err(None),
         }
-        Err(None)
     }
 
     fn from_url(&self, req: &Request) -> Result<LangCode, Option<Error>> {
@@ -190,7 +203,8 @@ impl Fairing for Config {
             .guard::<&State<PrivConfig>>()
             .await
         {
-            req.local_cache(|| config.0.choose(req));
+            let result = config.0.choose(req).await;
+            req.local_cache(|| result);
         }
     }
 }
