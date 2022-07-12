@@ -28,8 +28,7 @@ fn quality_from_capture(capt: &Captures) -> f32 {
         .flatten()
         .map(|m| m.as_str())
         .map(|m| m.parse())
-        .map(|r| r.ok())
-        .flatten()
+        .and_then(|r| r.ok())
         .unwrap_or(1.0)
 }
 

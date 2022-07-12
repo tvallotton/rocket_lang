@@ -37,8 +37,7 @@ fn parse_positive(req: &Request, pos: i32) -> Option<LangCode> {
     req.uri()
         .path()
         .segments()
-        .skip(pos as usize)
-        .next()?
+        .nth(pos as usize)?
         .parse()
         .ok()
 }

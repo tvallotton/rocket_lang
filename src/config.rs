@@ -133,14 +133,14 @@ impl Config {
     }
 
     pub(crate) async fn choose(&self, req: &Request<'_>) -> Result<LangCode, Error> {
-        self.from_custom(req)
+        self.with_custom(req)
             .await
             .or_else(|e1| {
-                self.from_url(req)
+                self.with_url(req)
                     .map_err(|e2| e1.or(e2))
             })
             .or_else(|e1| {
-                self.from_lang_header(req)
+                self.with_lang_header(req)
                     .map_err(|e2| e1.or(Some(e2)))
             })
             .or_else(|err| {
@@ -152,7 +152,7 @@ impl Config {
             .map_err(Option::unwrap)
     }
 
-    async fn from_custom(&self, req: &Request<'_>) -> Result<LangCode, Option<Error>> {
+    async fn with_custom(&self, req: &Request<'_>) -> Result<LangCode, Option<Error>> {
         match self.custom.as_ref() {
             Some(Ok(custom)) => {
                 return custom(req).map_err(Some);
@@ -166,14 +166,14 @@ impl Config {
         }
     }
 
-    fn from_url(&self, req: &Request) -> Result<LangCode, Option<Error>> {
+    fn with_url(&self, req: &Request) -> Result<LangCode, Option<Error>> {
         if let Some(pos) = self.url {
             return crate::url::get(req, pos).map_err(Some);
         }
         Err(None)
     }
 
-    fn from_lang_header(&self, req: &Request) -> Result<LangCode, Error> {
+    fn with_lang_header(&self, req: &Request) -> Result<LangCode, Error> {
         crate::accept_language::with_config(req, self)
     }
 }

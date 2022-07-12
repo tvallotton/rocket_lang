@@ -3,7 +3,7 @@ use std::collections::{BTreeSet, HashSet};
 use rocket::http::{Header, Status};
 use rocket::local::asynchronous::Client;
 
-use LangCode::{Es, La};
+use LangCode::{Es};
 #[macro_use]
 extern crate rocket;
 
@@ -174,19 +174,19 @@ async fn accept_header_without_config() {
 #[test]
 fn names() {
     let english_names: HashSet<&'static str> = LangCode::ALL_CODES
-        .into_iter()
+        .iter()
         .map(|code| code.english_name())
         .collect();
     // no names are repeated
     assert_eq!(english_names.len(), LangCode::ALL_CODES.len());
 
     let native_names: HashSet<&'static str> = LangCode::ALL_CODES
-        .into_iter()
+        .iter()
         .map(|code| code.native_name())
         .collect();
 
     LangCode::ALL_CODES
-        .into_iter()
+        .iter()
         .for_each(|code| {
             assert_eq!(
                 format!("{code}")
@@ -197,12 +197,12 @@ fn names() {
             let _ = format!("{code:?}");
         });
     let codes: BTreeSet<_> = LangCode::ALL_CODES
-        .into_iter()
+        .iter()
         .collect();
 
     codes
         .into_iter()
-        .zip(LangCode::ALL_CODES.into_iter())
+        .zip(LangCode::ALL_CODES.iter())
         .for_each(|(c1, c2)| {
             assert_eq!(c1, c2);
         });
