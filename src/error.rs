@@ -33,9 +33,9 @@ impl Error {
 }
 
 impl<'r, 'o: 'r> Responder<'r, 'o> for Error {
-    fn respond_to(self, request: &'r Request<'_>) -> rocket::response::Result<'o> {
-        Response::new()
-            .set_status(self.status())
-            .respond_to(request)
+    fn respond_to(self, _: &'r Request<'_>) -> rocket::response::Result<'o> {
+        Response::build()
+            .status(self.status())
+            .ok()
     }
 }

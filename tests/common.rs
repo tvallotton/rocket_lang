@@ -9,8 +9,9 @@ fn index(lang: LangCode) -> &'static str {
 }
 
 #[get("/fail")]
-fn fails(lang: LangCode) -> &'static str {
-    lang.as_str()
+fn fails(lang: Result<LangCode, Error>) -> Result<&'static str, Error> {
+    println!("{lang:?}"); 
+    Ok(lang?.as_str())
 }
 #[get("/")]
 fn nothing(lang: LangCode) -> &'static str {

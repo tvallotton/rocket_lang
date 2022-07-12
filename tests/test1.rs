@@ -1,7 +1,9 @@
+use std::collections::{BTreeSet, HashSet};
+
 use rocket::http::{Header, Status};
 use rocket::local::asynchronous::Client;
 
-use LangCode::Es;
+use LangCode::{Es, La};
 #[macro_use]
 extern crate rocket;
 
@@ -165,4 +167,49 @@ async fn accept_header_without_config() {
         .unwrap();
     let mut req = client.get("/some/path/index.html");
     req.add_header(Header::new("accept-language", "de, es;q=0.4"));
+}
+
+/// These tests are not very useful, and are here just
+/// to satisfy my OCD, and have higher test coverage.
+#[test]
+fn names() {
+    let english_names: HashSet<&'static str> = LangCode::ALL_CODES
+        .into_iter()
+        .map(|code| code.english_name())
+        .collect();
+    // no names are repeated
+    assert_eq!(english_names.len(), LangCode::ALL_CODES.len());
+
+    let native_names: HashSet<&'static str> = LangCode::ALL_CODES
+        .into_iter()
+        .map(|code| code.native_name())
+        .collect();
+
+    LangCode::ALL_CODES
+        .into_iter()
+        .for_each(|code| {
+            assert_eq!(
+                format!("{code}")
+                    .parse::<LangCode>()
+                    .unwrap(),
+                *code
+            );
+            let _ = format!("{code:?}");
+        });
+    let codes: BTreeSet<_> = LangCode::ALL_CODES
+        .into_iter()
+        .collect();
+
+    codes
+        .into_iter()
+        .zip(LangCode::ALL_CODES.into_iter())
+        .for_each(|(c1, c2)| {
+            assert_eq!(c1, c2);
+        });
+    format!("{}", Error::NotAcceptable); 
+    format!("{}", Error::NotFound); 
+    
+
+    // Only one name is repeated: isiNdebele
+    assert_eq!(native_names.len(), LangCode::ALL_CODES.len() - 1);
 }

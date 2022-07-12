@@ -47,7 +47,8 @@ async fn url_not_a_lang_code() {
         .dispatch()
         .await
         .status();
-    assert!(status == Status::NotFound);
+
+    assert_eq!(status, Status::NotFound);
 }
 
 #[tokio::test]
@@ -58,7 +59,7 @@ async fn url_not_long_enough_positive() {
         .dispatch()
         .await
         .status();
-    assert!(status == Status::NotFound);
+    assert_eq!(status, Status::NotFound);
 }
 #[tokio::test]
 async fn url_not_long_enough_minus_one() {
@@ -68,7 +69,7 @@ async fn url_not_long_enough_minus_one() {
         .dispatch()
         .await
         .status();
-    assert!(status == Status::NotFound);
+    assert_eq!(status, Status::NotFound);
 }
 #[tokio::test]
 async fn url_not_long_enough_negative() {
@@ -80,5 +81,3 @@ async fn url_not_long_enough_negative() {
         .status();
     assert!(status == Status::NotFound);
 }
-
-

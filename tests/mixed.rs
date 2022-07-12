@@ -71,8 +71,25 @@ async fn mixed_custom_url() {
     assert_mixed(config.clone(), "/some/bad/path", "en", "de").await;
     assert_mixed(config.clone(), "/some/bad/path", "es", "es").await;
     assert_mixed(config.clone(), "/some-good/path/pt", "es", "pt").await;
+    let mut config = Config::new()
+        .url(-1)
+        .wildcard(De)
+        .custom_async(|_| async { Err(Error::NotFound) });
+
+    config[Es] = 1.0;
+    assert_mixed(config.clone(), "/some/bad/path", "en", "de").await;
+    assert_mixed(config.clone(), "/some/bad/path", "en", "de").await;
+    assert_mixed(config.clone(), "/some/bad/path", "es", "es").await;
+    assert_mixed(config.clone(), "/some-good/path/pt", "es", "pt").await;
 
     let config = Config::new().custom(|_| Ok(La));
+
+    assert_mixed(config.clone(), "/some/bad/path", "en", "la").await;
+    assert_mixed(config.clone(), "/some/bad/path", "en", "la").await;
+    assert_mixed(config.clone(), "/some/bad/path", "es", "la").await;
+    assert_mixed(config.clone(), "/some-good/path/pt", "es", "la").await;
+
+    let config = Config::new().custom_async(|_| async { Ok(La) });
 
     assert_mixed(config.clone(), "/some/bad/path", "en", "la").await;
     assert_mixed(config.clone(), "/some/bad/path", "en", "la").await;

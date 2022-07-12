@@ -7,12 +7,21 @@ use rocket::{
 use std::{
     collections::HashMap,
     ops::{Index, IndexMut},
+    sync::Arc,
 };
 use std::{future::Future, pin::Pin};
 
 // type aliases for reduced verbosity
-type Fn = fn(&Request) -> Result<LangCode, Error>;
-type AsyncFn = fn(&Request) -> Pin<Box<dyn Future<Output = Result<LangCode, Error>> + Send>>;
+type Fun = fn(&Request) -> Result<LangCode, Error>;
+type AsyncFn = Arc<
+    dyn Fn(
+            &Request,
+        )
+            -> Pin<Box<dyn Future<Output = Result<LangCode, Error>> + Send + Sync + 'static>>
+        + Send
+        + Sync
+        + 'static,
+>;
 
 /// This struct allows for customization of `LangCode`'s
 /// behavior.
@@ -81,7 +90,7 @@ pub struct Config {
     pub wildcard: Option<LangCode>,
     pub(crate) accept_language: HashMap<LangCode, f32>,
     pub(crate) url: Option<i32>,
-    pub(crate) custom: Option<Result<Fn, AsyncFn>>,
+    pub(crate) custom: Option<Result<Fun, AsyncFn>>,
 }
 
 impl Config {
@@ -106,16 +115,19 @@ impl Config {
         Self::default()
     }
     /// Used to specify a custom language resolution method.
-    pub fn custom(self, f: Fn) -> Self {
+    pub fn custom(self, f: Fun) -> Self {
         Self {
             custom: Some(Ok(f)),
             ..self
         }
     }
     /// Used to specify a custom language resolution method with async block.
-    pub fn custom_async(self, f: AsyncFn) -> Self {
+    pub fn custom_async<F>(self, f: fn(&Request) -> F) -> Self
+    where
+        F: Future<Output = Result<LangCode, Error>> + Send + Sync + 'static,
+    {
         Self {
-            custom: Some(Err(f)),
+            custom: Some(Err(Arc::new(move |req| Box::pin(f(req))))),
             ..self
         }
     }
