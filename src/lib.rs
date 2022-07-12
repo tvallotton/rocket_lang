@@ -92,7 +92,7 @@ macro_rules! language_impls {
 impl TryFrom<&Request<'_>> for LangCode {
     type Error = Error;
     fn try_from(req: &Request) -> Result<LangCode, Error> {
-        req.local_cache(|| accept_language::without_config(req))
+        req.local_cache(|| Ok::<_, Error>(En))
             .clone()
     }
 }
@@ -107,7 +107,7 @@ impl<'r> FromRequest<'r> for LangCode {
     /// so this one will get ignored.
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
         match request
-            .local_cache(|| accept_language::without_config(request))
+            .local_cache(|| Ok::<_, Error>(En))
             .clone()
         {
             Ok(lang) => Outcome::Success(lang),

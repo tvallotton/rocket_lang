@@ -26,10 +26,11 @@ async fn assert_not_acceptable(client: &Client, header: &'static str) {
         status,
         Status::NotAcceptable,
         "content: {}",
-        res.into_string().await.unwrap()
+        res.into_string()
+            .await
+            .unwrap()
     );
 }
-
 
 #[tokio::test]
 async fn accept_language_configured() {
@@ -48,11 +49,12 @@ async fn accept_language_configured() {
     assert_not_acceptable(client, "not a valid request").await;
     assert_not_acceptable(client, "xx").await;
     assert_not_acceptable(client, "xx;q=0.2").await;
-}
 
-#[tokio::test]
-async fn accept_language_not_configured() {
-    let client = &not_configured().await;
+    let mut config = Config::new();
+    for &code in LangCode::ALL_CODES {
+        config[code] = 1.0; 
+    }
+    let client = &configured(config).await;
     assert_lang(client, "en-US, de;q=0.2", "en").await;
     assert_lang(client, "de,es;q=0.5", "de").await;
     assert_lang(client, "de, es;q=0.6", "de").await;
@@ -62,4 +64,18 @@ async fn accept_language_not_configured() {
     assert_not_acceptable(client, "not a valid request").await;
     assert_not_acceptable(client, "xx").await;
     assert_not_acceptable(client, "xx;q=0.2").await;
+}
+
+#[tokio::test]
+async fn accept_language_not_configured() {
+    let client = &not_configured().await;
+    assert_lang(client, "en-US, de;q=0.2", "en").await;
+    assert_lang(client, "de,es;q=0.5", "en").await;
+    assert_lang(client, "de, es;q=0.6", "en").await;
+    assert_lang(client, "de, es;q=0.4", "en").await;
+    assert_lang(client, "en-US, de;q=0.2", "en").await;
+    assert_lang(client, "fr;q=0.3", "en").await;
+    assert_lang(client, "not a valid request", "en").await;
+    assert_lang(client, "xx", "en").await;
+    assert_lang(client, "xx;q=0.2", "en").await;
 }

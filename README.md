@@ -16,7 +16,7 @@ fn some_path(lang: LangCode) -> Template {
 
 # Config 
 The behavior of the enum can be configured with the `Config` structure, which can be attached to a rocket instance. 
-When this is not used, its default behavior is to retrieve the language code from the `Accept-Language` header.
+When this is not used, the guard defaults to English. 
 
 ## accept_language
 If the preferred method for language resolution is the http accept-language header, the qualities for each language can be set like this:
